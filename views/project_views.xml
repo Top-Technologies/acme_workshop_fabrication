@@ -1,0 +1,12 @@
+<odoo>
+  <record id="project_fabrication_button" model="ir.ui.view">
+    <field name="name">project.fabrication.button</field>
+    <field name="model">project.project</field>
+    <field name="inherit_id" ref="project.edit_project"/>
+    <field name="arch" type="xml">
+      <xpath expr="//header" position="inside">
+        <button name="action_acme_fabrication" type="object" string="Fabrication Requests" groups="project.group_project_user"/>
+      </xpath>
+    </field>
+  </record>
+</odoo>

@@ -1,0 +1,10 @@
+<odoo noupdate="1">
+    <record id="category_task_plan" model="approval.category">
+        <field name="name">Task Plan Approval</field>
+        <field name="acme_kind">task_plan</field>
+        <field name="company_id" ref="base.main_company"/>
+        <field name="approval_minimum">2</field>
+        <field name="approver_sequence">1</field>
+        <field name="description">PM submits from the project. The assigned ODM approves before the assigned DM authorizes execution.</field>
+    </record>
+</odoo>

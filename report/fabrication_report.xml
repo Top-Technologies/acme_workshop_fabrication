@@ -1,0 +1,18 @@
+<odoo><record id="report_fabrication" model="ir.actions.report"><field name="name">Work Order for Fabrication</field><field name="model">acme.fabrication.request</field><field name="report_type">qweb-pdf</field><field name="report_name">acme_workshop_fabrication.fabrication_document</field></record>
+    <template id="fabrication_document"><t t-call="web.html_container"><t t-foreach="docs" t-as="o"><t t-call="web.external_layout"><div class="page">
+        <h2>Work Order for Fabrication Form</h2><p>ACME/OF/T011 — Issue No. 1</p>
+        <p><strong>Project Code:</strong> <span t-field="o.project_code"/><br/><strong>Request:</strong> <span t-field="o.name"/> — <span t-field="o.state"/><br/><strong>Work Order:</strong> <span t-field="o.title"/><br/><strong>Date of Order:</strong> <span t-field="o.order_date"/><br/><strong>Name of Customer:</strong> <span t-field="o.customer_id"/></p>
+        <p><strong>Brief Description of Work:</strong> <span t-field="o.description"/></p>
+        <table class="table table-sm"><thead><tr><th>No.</th><th>Description</th><th>Unit</th><th>Quantity</th><th>Remark</th></tr></thead><tbody><tr t-foreach="o.line_ids" t-as="line"><td><span t-out="line_index + 1"/></td><td><span t-field="line.name"/></td><td><span t-field="line.uom_id"/></td><td><span t-field="line.quantity"/></td><td><span t-field="line.remark"/></td></tr></tbody></table>
+        <h3>Delivery</h3><p>Completion Date: <span t-field="o.completion_date"/> | Sample / Prototype: <span t-field="o.prototype"/></p>
+        <h3>Attachments</h3><table class="table table-sm"><thead><tr><th>Document</th><th>Pages</th><th>Enclosure</th></tr></thead><tbody><tr><td>Drawings</td><td><span t-field="o.drawing_pages"/></td><td><span t-field="o.drawing_status"/></td></tr><tr><td>Bill of Quantities</td><td><span t-field="o.boq_pages"/></td><td><span t-field="o.boq_status"/></td></tr><tr><td>Engineering Instruction / Critical Specification</td><td><span t-field="o.instruction_pages"/></td><td><span t-field="o.instruction_status"/></td></tr></tbody></table>
+        <h3>Manufacturing Section</h3><p>Date Started: <span t-field="o.actual_start"/> | Date Finished: <span t-field="o.actual_finish"/></p>
+        <table class="table table-sm"><thead><tr><th>Sign-off</th><th>Name</th><th>Recorded Time</th><th>Signature</th></tr></thead><tbody>
+            <tr><td>Prepared By</td><td><span t-field="o.prepared_by_id"/></td><td><span t-field="o.prepared_at"/></td><td>____________</td></tr>
+            <tr><td>Approved By</td><td><span t-field="o.approved_by_id"/></td><td><span t-field="o.approved_at"/></td><td>____________</td></tr>
+            <tr><td>Received By</td><td><span t-field="o.received_by_id"/></td><td><span t-field="o.received_at"/></td><td>____________</td></tr>
+            <tr><td>Reported By</td><td><span t-field="o.reported_by_id"/></td><td><span t-field="o.reported_at"/></td><td>____________</td></tr>
+            <tr><td>Accepted By</td><td><span t-field="o.accepted_by_id"/></td><td><span t-field="o.accepted_at"/></td><td>____________</td></tr>
+        </tbody></table><p>Manufacturing dates are taken from linked MO states and recorded times; scheduled times are not shown as completed work. Attach signed copies through the request chatter.</p>
+    </div></t></t></t></template>
+</odoo>

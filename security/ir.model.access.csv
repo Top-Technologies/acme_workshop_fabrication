@@ -1,0 +1,7 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_fabrication_project,Fabrication request project,model_acme_fabrication_request,project.group_project_user,1,1,1,1
+access_fabrication_mrp,Fabrication request workshop,model_acme_fabrication_request,mrp.group_mrp_user,1,1,0,0
+access_fab_line_project,Fabrication product project,model_acme_fabrication_line,project.group_project_user,1,1,1,1
+access_fab_line_mrp,Fabrication product workshop,model_acme_fabrication_line,mrp.group_mrp_user,1,1,0,0
+access_fab_component_project,Fabrication component project,model_acme_fabrication_component,project.group_project_user,1,1,1,1
+access_fab_component_mrp,Fabrication component workshop,model_acme_fabrication_component,mrp.group_mrp_user,1,0,0,0

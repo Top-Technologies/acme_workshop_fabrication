@@ -1,0 +1,142 @@
+<odoo>
+    <record id="task_execution_work_package_form" model="ir.ui.view">
+        <field name="name">project.task.execution.work.package.form</field>
+        <field name="model">project.task</field>
+        <field name="inherit_id" ref="acme_project_core.task_work_dates"/>
+        <field name="arch" type="xml">
+            <xpath expr="//page[@name='acme_work_quantities']" position="inside">
+                <group string="Work Package Planning" invisible="not project_id">
+                    <field name="acme_execution_package_id" invisible="1"/>
+                    <field name="acme_execution_order_id" invisible="1"/>
+                    <field name="acme_eligible_execution_bom_ids" invisible="1"/>
+                    <field name="acme_is_work_package" invisible="acme_execution_package_id and not acme_is_work_package"/>
+                    <field name="acme_execution_boq_id" invisible="not acme_is_work_package"
+                           domain="[('project_id', '=', project_id), ('source_line_id.order_id', '=', acme_execution_order_id), ('source_line_id.order_id.state', '=', 'sale')]"
+                           options="{'no_create': True}"/>
+                    <field name="acme_execution_bom_id" invisible="not acme_is_work_package"
+                           domain="[('id', 'in', acme_eligible_execution_bom_ids)]" options="{'no_create': True}"/>
+                    <field name="acme_package_boq_id" invisible="not acme_execution_package_id or acme_is_work_package"/>
+                    <field name="acme_package_bom_id" invisible="not acme_execution_package_id or acme_is_work_package"/>
+                    <field name="acme_execution_signoff_id" invisible="not acme_execution_signoff_id"/>
+                    <field name="acme_execution_started" invisible="not acme_is_work_package"/>
+                    <button name="action_acme_start_execution" type="object" string="Start Execution"
+                            invisible="not acme_is_work_package or acme_execution_started"/>
+                    <button name="action_acme_open_signed_measurements" type="object" string="Signed Takeoff Measurements"
+                            invisible="not acme_execution_package_id"/>
+                </group>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="progress_certificate_execution_task_form" model="ir.ui.view">
+        <field name="name">acme.project.certificate.execution.task.form</field>
+        <field name="model">acme.project.certificate</field>
+        <field name="inherit_id" ref="acme_project_approvals.progress_certificate_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='line_ids']/list/field[@name='boq_id']" position="after">
+                <field name="acme_execution_task_id" optional="show"
+                       domain="[('project_id', '=', parent.project_id), ('acme_package_boq_id', '=', boq_id)]"
+                       options="{'no_create': True}"/>
+            </xpath>
+        </field>
+    </record>
+    <record id="signed_execution_measurement_list" model="ir.ui.view">
+        <field name="name">acme.project.measurement.signed.execution.list</field>
+        <field name="model">acme.project.measurement</field>
+        <field name="priority">99</field>
+        <field name="arch" type="xml">
+            <list create="0" edit="0" delete="0" open_form_view="0">
+                <field name="certificate_id"/>
+                <field name="acme_execution_task_id"/>
+                <field name="boq_id"/>
+                <field name="quantity"/>
+                <field name="unit"/>
+            </list>
+        </field>
+    </record>
+    <record id="project_submit_task_plan" model="ir.ui.view">
+        <field name="name">project.project.submit.task.plan</field>
+        <field name="model">project.project</field>
+        <field name="inherit_id" ref="acme_project_approvals.project_preparation_actions"/>
+        <field name="arch" type="xml">
+            <xpath expr="//header" position="inside">
+                <button name="action_acme_submit_task_plan" type="object" string="Submit Task Plan"
+                        invisible="user_id != uid"/>
+            </xpath>
+        </field>
+    </record>
+    <record id="project_preparation_layout" model="ir.ui.view">
+        <field name="name">project.project.preparation.layout</field>
+        <field name="model">project.project</field>
+        <field name="inherit_id" ref="acme_project_approvals.project_preparation_actions"/>
+        <field name="arch" type="xml">
+            <xpath expr="//page[@name='acme_preparation']" position="replace">
+                <page name="acme_preparation" string="Planning and Preparation">
+                    <group string="Work Plan">
+                        <field name="acme_task_plan_request_id" invisible="1"/>
+                        <field name="acme_task_plan_status" invisible="not acme_task_plan_request_id" readonly="1"/>
+                        <div class="row g-2" colspan="2">
+                            <div class="col-12 col-lg-4">
+                                <button name="action_view_tasks" type="object" string="Open Tasks"
+                                        class="btn-secondary w-100"/>
+                            </div>
+                            <div class="col-12 col-lg-4" invisible="not acme_task_plan_request_id">
+                                <field name="acme_task_plan_request_id" string="Task Plan Approval" readonly="1"/>
+                            </div>
+                            <div class="col-12 col-lg-4" invisible="not acme_task_plan_request_id">
+                                <field name="acme_task_plan_status" string="Task Plan Status" readonly="1"/>
+                            </div>
+                        </div>
+                    </group>
+                    <group string="Kickoff">
+                        <div class="row g-2" colspan="2">
+                            <div class="col-12 col-lg-6">
+                                <button name="action_acme_open_kickoff" type="object" string="Schedule / Open Kickoff"
+                                        class="btn-secondary w-100"/>
+                            </div>
+                            <div class="col-12 col-lg-6">
+                                <button name="action_acme_kickoff_signoff" type="object"
+                                        string="Request DM Team and Kickoff Sign-off" class="btn-secondary w-100"/>
+                            </div>
+                        </div>
+                    </group>
+                    <group string="Mobilization">
+                        <div class="row g-2" colspan="2">
+                            <div class="col-12 col-xl-3">
+                                <button name="action_acme_work_advance" type="object" string="Work Advance"
+                                        class="btn-secondary w-100"/>
+                            </div>
+                            <div class="col-12 col-xl-3">
+                                <button name="action_acme_petty_cash" type="object" string="Project Petty Cash"
+                                        class="btn-secondary w-100"/>
+                            </div>
+                            <div class="col-12 col-xl-3">
+                                <button name="action_acme_project_purchase" type="object"
+                                        string="Outside-BOQ Purchase Request" class="btn-secondary w-100"/>
+                            </div>
+                            <div class="col-12 col-xl-3">
+                                <button name="action_acme_warehouse_request" type="object"
+                                        string="Outside-BOQ Warehouse Requisition" class="btn-secondary w-100"/>
+                            </div>
+                        </div>
+                    </group>
+                </page>
+            </xpath>
+        </field>
+    </record>
+    <record id="task_plan_approval_form" model="ir.ui.view">
+        <field name="name">approval.request.task.plan.details</field>
+        <field name="model">approval.request</field>
+        <field name="inherit_id" ref="acme_project_approvals.approval_request_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//sheet" position="inside">
+                <group string="Submitted Task Plan" invisible="acme_kind != 'task_plan'">
+                    <field name="acme_project_id" readonly="1"/>
+                    <field name="acme_preparation_signed_by_id"/>
+                    <field name="acme_preparation_signed_at"/>
+                    <field name="acme_task_plan_details" widget="html" readonly="1" nolabel="1" colspan="2"/>
+                </group>
+            </xpath>
+        </field>
+    </record>
+</odoo>

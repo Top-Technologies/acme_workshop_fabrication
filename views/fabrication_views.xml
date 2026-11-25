@@ -1,0 +1,55 @@
+<odoo><record id="fabrication_list" model="ir.ui.view"><field name="name">fabrication.request.list</field><field name="model">acme.fabrication.request</field><field name="arch" type="xml"><list><field name="name"/><field name="title"/><field name="project_id"/><field name="customer_id"/><field name="completion_date"/><field name="state"/></list></field></record>
+    <record id="fabrication_form" model="ir.ui.view"><field name="name">fabrication.request.form</field><field name="model">acme.fabrication.request</field><field name="arch" type="xml">
+        <form><header>
+            <button name="action_submit" type="object" string="Submit" invisible="state != 'draft'" class="btn-primary"/>
+            <button name="action_approve" type="object" string="Approve" invisible="state != 'submitted' or approver_id != uid"/>
+            <button name="action_reject" type="object" string="Reject" invisible="state != 'submitted' or approver_id != uid"/>
+            <button name="action_receive" type="object" string="Receive in Workshop" invisible="state != 'approved' or receiver_id != uid"/>
+            <button name="action_manufacture" type="object" string="Manufacturing Orders" invisible="state != 'received'" groups="mrp.group_mrp_user"/>
+            <button name="action_report_completion" type="object" string="Report Completion" invisible="state != 'received'" groups="mrp.group_mrp_user"/>
+            <button name="action_accept" type="object" string="Accept Completed Work" invisible="state != 'reported' or acceptor_id != uid"/>
+            <button name="action_cancel" type="object" string="Cancel" invisible="state not in ['draft', 'submitted', 'approved', 'received']"/>
+            <button name="action_print" type="object" string="Print Work Order"/>
+            <field name="state" widget="statusbar"/>
+        </header><sheet><h1><field name="name"/></h1>
+            <group><group><field name="title" readonly="state != 'draft'"/><field name="project_id" readonly="state != 'draft'"/><field name="project_code"/><field name="customer_id"/><field name="company_id" invisible="1"/><field name="order_date" readonly="state != 'draft'"/></group>
+                <group><field name="completion_date" readonly="state != 'draft'"/><field name="prototype" widget="radio" options="{'horizontal': True}" readonly="state != 'draft'"/><field name="approver_id" readonly="state != 'draft'"/><field name="receiver_id" readonly="state != 'draft'"/><field name="acceptor_id" readonly="state != 'draft'"/></group></group>
+            <field name="description" readonly="state != 'draft'"/>
+            <field name="line_ids" readonly="state != 'draft'"><list><field name="product_id"/><field name="name"/><field name="quantity"/><field name="uom_id"/><field name="remark"/><field name="bom_id" optional="hide" groups="mrp.group_mrp_user"/>
+                                    <field name="acme_boq_demand_id" optional="hide"/>
+                                    <field name="acme_source_bom_id" optional="show"/></list>
+                <form string="Requested Product and Components"><sheet><group><field name="product_id"/><field name="name"/><field name="quantity"/><field name="uom_id"/><field name="remark"/><field name="bom_id" groups="mrp.group_mrp_user"/></group>
+                    <h3>Components for the Entire Requested Batch</h3>
+                    <field name="component_ids"><list editable="bottom"><field name="product_id"/><field name="quantity"/><field name="uom_id"/></list></field>
+                </sheet></form>
+            </field>
+            <notebook><page string="Attachments Checklist"><group>
+                <group string="Drawings"><field name="drawing_pages" readonly="state != 'draft'"/><field name="drawing_status" widget="radio" readonly="state != 'draft'"/></group>
+                <group string="Bill of Quantities"><field name="boq_pages" readonly="state != 'draft'"/><field name="boq_status" widget="radio" readonly="state != 'draft'"/></group>
+                <group string="Engineering Instructions"><field name="instruction_pages" readonly="state != 'draft'"/><field name="instruction_status" widget="radio" readonly="state != 'draft'"/></group>
+            </group><p>Attach drawings, BOQ and specifications using the standard chatter attachment control. The BOQ attachment checklist is distinct from the manufacturing component BoM above.</p></page>
+            <page string="Manufacturing and Sign-offs"><group><group><field name="actual_start" readonly="1"/><field name="actual_finish" readonly="1"/><field name="prepared_by_id" readonly="1"/><field name="prepared_at" readonly="1"/><field name="approved_by_id" readonly="1"/><field name="approved_at" readonly="1"/></group>
+                <group><field name="received_by_id" readonly="1"/><field name="received_at" readonly="1"/><field name="reported_by_id" readonly="1"/><field name="reported_at" readonly="1"/><field name="accepted_by_id" readonly="1"/><field name="accepted_at" readonly="1"/></group></group>
+                <field name="production_ids" readonly="1" groups="mrp.group_mrp_user"><list create="0" delete="0"><field name="name"/><field name="product_id"/><field name="product_qty"/><field name="date_start"/><field name="date_finished"/><field name="state"/></list></field>
+            </page></notebook>
+            <field name="decision_note" readonly="state not in ['draft', 'submitted']"/>
+        </sheet><chatter/></form>
+    </field></record>
+    <record id="fabrication_action" model="ir.actions.act_window"><field name="name">Fabrication Requests</field><field name="res_model">acme.fabrication.request</field><field name="view_mode">list,form</field></record>
+    <menuitem id="fabrication_menu" name="Fabrication Requests" parent="mrp.menu_mrp_root" action="fabrication_action" groups="mrp.group_mrp_user" sequence="35"/>
+    <record id="mrp_fabrication_selector" model="ir.ui.view"><field name="name">mrp.production.fabrication.selector</field><field name="model">mrp.production</field><field name="inherit_id" ref="mrp.mrp_production_form_view"/>
+        <field name="arch" type="xml"><xpath expr="(//field[@name='product_id'])[1]" position="before"><field name="acme_fabrication_request_id" domain="[('state', '=', 'received'), ('company_id', '=', company_id)]" options="{'no_create': True, 'no_create_edit': True}" readonly="id"/><field name="acme_fabrication_line_id" domain="[('request_id', '=', acme_fabrication_request_id)]" options="{'no_create': True, 'no_create_edit': True}" readonly="id" invisible="not acme_fabrication_request_id"/><field name="acme_project_id" invisible="not acme_fabrication_request_id"/></xpath></field>
+    </record>
+        <record id="employee_project_cost_payroll" model="ir.ui.view">
+        <field name="name">hr.employee.project.cost.payroll</field>
+        <field name="model">hr.employee</field>
+        <field name="inherit_id" ref="hr_hourly_cost.view_employee_form"/>
+        <field name="priority">80</field>
+        <field name="arch" type="xml">
+            <xpath expr="//page[@name='payroll_information']/group[@name='payroll_group']" position="inside">
+                <xpath expr="//label[@for='hourly_cost']" position="move"/>
+                <xpath expr="//div[@name='hourly_cost']" position="move"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>

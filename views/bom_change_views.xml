@@ -1,0 +1,44 @@
+<odoo>
+    <record id="acme_project_approvals.action_acme_project_approval_types" model="ir.actions.act_window">
+        <field name="domain">[('acme_kind', '!=', False)]</field>
+    </record>
+    <record id="approval_request_bom_change" model="ir.ui.view">
+        <field name="name">approval.request.fabrication.bom.change</field>
+        <field name="model">approval.request</field>
+        <field name="inherit_id" ref="acme_project_approvals.approval_request_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//button[@name='action_acme_print_request']" position="attributes">
+                <attribute name="invisible" add="acme_kind == 'bom_change'" separator=" or "/>
+            </xpath>
+            <xpath expr="//field[@name='acme_contract_reference']/ancestor::group[2]" position="attributes">
+                <attribute name="invisible" add="acme_kind == 'bom_change'" separator=" or "/>
+            </xpath>
+            <xpath expr="//sheet" position="inside">
+                <group string="BoM Change" invisible="acme_kind != 'bom_change'">
+                    <field name="acme_project_id" readonly="request_status != 'new'" required="acme_kind == 'bom_change'"/>
+                    <field name="acme_bom_component_id" string="Bom Component" readonly="request_status != 'new'"
+                           required="acme_kind == 'bom_change'" options="{'no_create': True}"
+                           domain="[('bom_id.acme_request_line_id.request_id.project_id', '=', acme_project_id), ('bom_id.acme_request_line_id', '!=', False)]"/>
+                    <field name="acme_bom_change_current_qty"/>
+                    <field name="acme_bom_change_quantity" readonly="request_status != 'new'"/>
+                    <field name="acme_bom_change_consult_edm" readonly="request_status != 'new'"/>
+                    <field name="acme_revised_bom_id" string="Revised Bom" invisible="not acme_revised_bom_id"/>
+                </group>
+            </xpath>
+        </field>
+    </record>
+    <record id="fabrication_request_bom_revision_source" model="ir.ui.view">
+        <field name="name">fabrication.request.bom.revision.source</field>
+        <field name="model">acme.fabrication.request</field>
+        <field name="inherit_id" ref="fabrication_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='line_ids']/form//field[@name='remark']" position="after">
+                <field name="acme_specification_source_id" options="{'no_create': True}"
+                       domain="[('request_id.project_id', '=', parent.project_id), ('bom_id', '!=', False)]"/>
+            </xpath>
+            <xpath expr="//field[@name='component_ids']/list/field[@name='uom_id']" position="after">
+                <field name="acme_material_classification" optional="show"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>
